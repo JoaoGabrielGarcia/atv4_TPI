@@ -38,8 +38,20 @@ export default function ClientesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [filtro, setFiltro] = useState('todos');
   const [genero, setGenero] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const clientesFiltrados = filtrarClientes(clientes, filtro, genero);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentClientes = clientesFiltrados.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(clientesFiltrados.length / itemsPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
 
   return (
     <div className="p-4 md:p-8">
@@ -82,12 +94,12 @@ export default function ClientesPage() {
             </tr>
           </thead>
           <tbody>
-            {clientesFiltrados.length === 0 ? (
+            {currentClientes.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center text-gray-300 py-8">Nenhum cliente cadastrado.</td>
               </tr>
             ) : (
-              clientesFiltrados.map((c, i) => (
+              currentClientes.map((c, i) => (
                 <tr key={i} className="border-t border-gray-600">
                   <td className="px-4 py-2">{c.nome}</td>
                   <td className="px-4 py-2">{c.nomeSocial}</td>
@@ -101,6 +113,42 @@ export default function ClientesPage() {
           </tbody>
         </table>
       </div>
+
+      <div className="flex justify-center mt-6">
+        <nav>
+          <ul className="inline-flex items-center space-x-1">
+            <li>
+              <button
+                onClick={prevPage}
+                disabled={currentPage === 1}
+                className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Anterior
+              </button>
+            </li>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <li key={page}>
+                <button
+                  onClick={() => paginate(page)}
+                  className={`px-3 py-2 ${page === currentPage ? 'text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700'} border border-gray-300`}
+                >
+                  {page}
+                </button>
+              </li>
+            ))}
+            <li>
+              <button
+                onClick={nextPage}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Próxima
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
       <ClienteModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
