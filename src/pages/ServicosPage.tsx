@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ServicoModal from '../components/ServicoModal';
-import { mockServices } from '../data/mockServices';
+import { useData } from '../context/DataContext';
 
 const filtros = [
   { label: 'Todos', value: 'todos' },
@@ -10,14 +10,14 @@ const filtros = [
 function filtrarServicos(servicos: any[], filtro: string) {
   switch (filtro) {
     case 'top10':
-      return [...servicos].sort((a, b) => (b.qtdConsumida || 0) - (a.qtdConsumida || 0)).slice(0, 10);
+      return [...servicos].sort((a, b) => b.quantidadeConsumida - a.quantidadeConsumida).slice(0, 10);
     default:
       return servicos;
   }
 }
 
 export default function ServicosPage() {
-  const [servicos, setServicos] = useState<any[]>(mockServices);
+  const { servicos, adicionarServico } = useData();
   const [modalOpen, setModalOpen] = useState(false);
   const [filtro, setFiltro] = useState('todos');
   const [currentPage, setCurrentPage] = useState(1);
@@ -60,18 +60,20 @@ export default function ServicosPage() {
             <tr>
               <th className="px-4 py-2 text-left">Nome</th>
               <th className="px-4 py-2 text-left">Valor</th>
+              <th className="px-4 py-2 text-left">Quantidade Consumida</th>
             </tr>
           </thead>
           <tbody>
             {currentServicos.length === 0 ? (
               <tr>
-                <td colSpan={2} className="text-center text-gray-300 py-8">Nenhum serviço cadastrado.</td>
+                <td colSpan={3} className="text-center text-gray-300 py-8">Nenhum serviço cadastrado.</td>
               </tr>
             ) : (
               currentServicos.map((s, i) => (
                 <tr key={i} className="border-t border-gray-600">
                   <td className="px-4 py-2">{s.nome}</td>
                   <td className="px-4 py-2">R$ {s.valor.toFixed(2)}</td>
+                  <td className="px-4 py-2">{s.quantidadeConsumida}</td>
                 </tr>
               ))
             )}
@@ -79,48 +81,46 @@ export default function ServicosPage() {
         </table>
       </div>
 
-      {servicosFiltrados.length > itemsPerPage && (
-        <div className="flex justify-center mt-6">
-          <nav>
-            <ul className="inline-flex items-center space-x-1">
-              <li>
+      <div className="flex justify-center mt-6">
+        <nav>
+          <ul className="inline-flex items-center space-x-1">
+            <li>
+              <button
+                onClick={prevPage}
+                disabled={currentPage === 1}
+                className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Anterior
+              </button>
+            </li>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <li key={page}>
                 <button
-                  onClick={prevPage}
-                  disabled={currentPage === 1}
-                  className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => paginate(page)}
+                  className={`px-3 py-2 leading-tight ${page === currentPage ? 'text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700'} border border-gray-300`}
                 >
-                  Anterior
+                  {page}
                 </button>
               </li>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <li key={page}>
-                  <button
-                    onClick={() => paginate(page)}
-                    className={`px-3 py-2 leading-tight ${page === currentPage ? 'text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700' : 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700'} border border-gray-300`}
-                  >
-                    {page}
-                  </button>
-                </li>
-              ))}
-              <li>
-                <button
-                  onClick={nextPage}
-                  disabled={currentPage === totalPages}
-                  className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Próxima
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      )}
+            ))}
+            <li>
+              <button
+                onClick={nextPage}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Próxima
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
 
       <ServicoModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSave={servico => {
-          setServicos([...servicos, servico]);
+          adicionarServico(servico);
           setModalOpen(false);
         }}
       />

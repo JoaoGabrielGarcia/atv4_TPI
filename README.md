@@ -63,3 +63,4 @@ npm run preview
 
 - Os dados são mantidos apenas em memória (mock), sem persistência em banco ou API.
 - O projeto já está pronto para integração futura com back-end.
+- Interface para consumo dos clientes implementada

@@ -4,6 +4,7 @@ const navItems = [
   { name: 'Clientes', path: '/clientes' },
   { name: 'Produtos', path: '/produtos' },
   { name: 'Serviços', path: '/servicos' },
+  { name: 'Registrar Consumo', path: '/registrar-consumo' },
 ];
 
 export default function Navbar() {

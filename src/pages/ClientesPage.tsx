@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ClienteModal from '../components/ClienteModal';
-import { mockClients } from '../data/mockClients';
+import { useData } from '../context/DataContext';
 
 const filtros = [
   { label: 'Todos', value: 'todos' },
@@ -23,18 +23,18 @@ function filtrarClientes(clientes: any[], filtro: string, genero: string) {
   }
   switch (filtro) {
     case 'top10':
-      return [...filtrados].sort((a, b) => (b.qtdConsumida || 0) - (a.qtdConsumida || 0)).slice(0, 10);
+      return [...filtrados].sort((a, b) => (b.totalProdutos + b.totalServicos) - (a.totalProdutos + a.totalServicos)).slice(0, 10);
     case 'menos10':
-      return [...filtrados].sort((a, b) => (a.qtdConsumida || 0) - (b.qtdConsumida || 0)).slice(0, 10);
+      return [...filtrados].sort((a, b) => (a.totalProdutos + a.totalServicos) - (b.totalProdutos + b.totalServicos)).slice(0, 10);
     case 'top5valor':
-      return [...filtrados].sort((a, b) => (b.valorConsumido || 0) - (a.valorConsumido || 0)).slice(0, 5);
+      return [...filtrados].sort((a, b) => b.valorTotal - a.valorTotal).slice(0, 5);
     default:
       return filtrados;
   }
 }
 
 export default function ClientesPage() {
-  const [clientes, setClientes] = useState<any[]>(mockClients);
+  const { clientes, adicionarCliente } = useData();
   const [modalOpen, setModalOpen] = useState(false);
   const [filtro, setFiltro] = useState('todos');
   const [genero, setGenero] = useState('');
@@ -81,6 +81,7 @@ export default function ClientesPage() {
           Cadastrar Cliente
         </button>
       </div>
+      
       <div className="overflow-x-auto">
         <table className="min-w-full bg-gray-700 rounded shadow">
           <thead>
@@ -91,12 +92,15 @@ export default function ClientesPage() {
               <th className="px-4 py-2 text-left">CPF</th>
               <th className="px-4 py-2 text-left">RG</th>
               <th className="px-4 py-2 text-left">Telefone</th>
+              <th className="px-4 py-2 text-left">Total Produtos</th>
+              <th className="px-4 py-2 text-left">Total Serviços</th>
+              <th className="px-4 py-2 text-left">Valor Total</th>
             </tr>
           </thead>
           <tbody>
             {currentClientes.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center text-gray-300 py-8">Nenhum cliente cadastrado.</td>
+                <td colSpan={9} className="text-center text-gray-300 py-8">Nenhum cliente cadastrado.</td>
               </tr>
             ) : (
               currentClientes.map((c, i) => (
@@ -107,6 +111,9 @@ export default function ClientesPage() {
                   <td className="px-4 py-2">{c.cpf}</td>
                   <td className="px-4 py-2">{c.rg}</td>
                   <td className="px-4 py-2">({c.ddd}) {c.telefone}</td>
+                  <td className="px-4 py-2">{c.totalProdutos}</td>
+                  <td className="px-4 py-2">{c.totalServicos}</td>
+                  <td className="px-4 py-2">R$ {c.valorTotal.toFixed(2)}</td>
                 </tr>
               ))
             )}
@@ -114,7 +121,7 @@ export default function ClientesPage() {
         </table>
       </div>
 
-      <div className="flex justify-center mt-6">
+      <div className="mt-4 flex justify-center">
         <nav>
           <ul className="inline-flex items-center space-x-1">
             <li>
@@ -153,7 +160,7 @@ export default function ClientesPage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSave={cliente => {
-          setClientes([...clientes, cliente]);
+          adicionarCliente(cliente);
           setModalOpen(false);
         }}
       />
