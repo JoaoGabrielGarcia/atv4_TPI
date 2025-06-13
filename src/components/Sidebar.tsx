@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
   { name: 'Clientes', path: '/clientes' },
+  { name: 'Clientes Java', path: '/clientes-java' },
   { name: 'Produtos', path: '/produtos' },
   { name: 'Serviços', path: '/servicos' },
   { name: 'Registrar Consumo', path: '/registrar-consumo' },

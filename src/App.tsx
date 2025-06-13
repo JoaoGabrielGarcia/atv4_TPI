@@ -4,6 +4,7 @@ import ClientesPage from './pages/ClientesPage';
 import ProdutosPage from './pages/ProdutosPage';
 import ServicosPage from './pages/ServicosPage';
 import RegistrarConsumoPage from './pages/RegistrarConsumoPage';
+import { ClientesPage_Java } from './pages/ClientesPage_Java';
 import { DataProvider } from './context/DataContext';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <main className="pt-20 min-h-screen">
             <Routes>
               <Route path="/clientes" element={<ClientesPage />} />
+              <Route path="/clientes-java" element={<ClientesPage_Java />} />
               <Route path="/produtos" element={<ProdutosPage />} />
               <Route path="/servicos" element={<ServicosPage />} />
               <Route path="/registrar-consumo" element={<RegistrarConsumoPage />} />
